@@ -1,0 +1,33 @@
+{
+    "name": "nasumilu/geometry-serializer",
+    "description": "Serializer component from nasumilu/geometry.",
+    "type": "library",
+    "homepage": "https://nasumilu.net",
+    "license": "Apache-2.0",
+    "keywords": [],
+    "authors": [
+        {
+            "name": "Michael Lucas",
+            "email": "nasumilu-owner@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "nasumilu/geometry": "dev-main",
+        "symfony/serializer": "^v5.2",
+        "doctrine/lexer": "1.2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nasumilu\\Spatial\\Serializer\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Nasumilu\\Spatial\\Serializer\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "9.5.3"
+    }
+}
