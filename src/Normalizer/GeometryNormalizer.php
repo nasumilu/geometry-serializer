@@ -34,7 +34,17 @@ use Nasumilu\Spatial\Geometry\{
 };
 
 /**
- * GeometryNormalizer
+ * GeometryNormalizer (de)normalizes a Geometry object.
+ * 
+ * [
+ *  'type' => &lt;string&gt;,
+ *  'crs'  => [
+ *      'srid'     => &lt;integer&gt;,
+ *      '3d'       => &lt;boolean&gt;,
+ *      'measured' => &lt;boolean&gt;
+ *  ],
+ *  'coordinates | geometries'] => &lt;array&gt;
+ * ]
  */
 class GeometryNormalizer implements NormalizerInterface, DenormalizerInterface
 {
@@ -69,6 +79,7 @@ class GeometryNormalizer implements NormalizerInterface, DenormalizerInterface
      */
     public function denormalize($data, string $type, string $format = null, array $context = []): Geometry
     {
+        print_r($data);
         if(null === $factory = $context['factory'] ?? null) {
             throw new \InvalidArgumentException("Must have a geomtry factory in context!");
         }
