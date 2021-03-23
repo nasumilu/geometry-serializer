@@ -54,8 +54,8 @@ class GeometrySerializerTest extends TestCase
     {
         $factory = $this->getMockForAbstractClass(AbstractGeometryFactory::class, [[
         'srid' => 4326,
-        'is_3d' => true,
-        'is_measured' => true
+        '3d' => true,
+        'measured' => true
         ]]);
         $geometry = $factory->create($args);
         $serializer = self::$serializer->serialize($geometry, $format);
