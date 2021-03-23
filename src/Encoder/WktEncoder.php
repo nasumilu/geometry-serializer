@@ -89,6 +89,11 @@ class WktEncoder implements EncoderInterface, DecoderInterface
         return $this->supportsDecoding($format);
     }
 
+    /**
+     * Decodes a wkt geometry
+     * @param string $value
+     * @return array
+     */
     public function decodeGeometry(string $value): array
     {
         $this->lexer->setInput($value);
@@ -98,13 +103,19 @@ class WktEncoder implements EncoderInterface, DecoderInterface
         $dimension = $this->decodeDimension();
         $data = array_merge([
             'type' => $type,
-            'srid' => $srid,
-            'dimension' => $dimension],
+            'crs' => array_merge([
+                'srid' => $srid,
+            ], $dimension)
+            ],
                 $this->decodeCoordinates($type));
         $this->lexer->reset();
         return $data;
     }
 
+    /**
+     * Decodes a ewkt geometry srid
+     * @return int
+     */
     private function decodeSrid(): int
     {
         $srid = -1;
@@ -118,17 +129,25 @@ class WktEncoder implements EncoderInterface, DecoderInterface
         return $srid;
     }
 
+    /**
+     * Decodes a wkt geometry type
+     * @return string
+     */
     private function decodeGeometryType(): string
     {
         $this->match(WktLexer::T_GEOMETRY_TYPE);
         return $this->lexer->token['value'];
     }
 
+    /**
+     * Decodes a wkt geometry dimension.
+     * @return array
+     */
     private function decodeDimension(): array
     {
         $dimension = [
-            'is3D' => false,
-            'isMeasured' => false
+            '3d' => false,
+            'measured' => false
         ];
         if ($this->lexer->isNextToken(WktLexer::T_DIMENSION)) {
             $this->match(WktLexer::T_DIMENSION);
@@ -140,6 +159,10 @@ class WktEncoder implements EncoderInterface, DecoderInterface
         return $dimension;
     }
 
+    /**
+     * Decodes a wkt coordinate sequence
+     * @return array
+     */
     private function decodeCoordinateSeq(): array
     {
         $values = [$this->decodeCoordinate()];
@@ -150,6 +173,10 @@ class WktEncoder implements EncoderInterface, DecoderInterface
         return $values;
     }
 
+    /**
+     * Decodes a wkt coordinate
+     * @return array
+     */
     private function decodeCoordinate(): array
     {
         $values = [];
@@ -161,6 +188,11 @@ class WktEncoder implements EncoderInterface, DecoderInterface
         return $values;
     }
 
+    /**
+     * Decodes a wkt geometry coordinates
+     * @param string $type
+     * @return array
+     */
     private function decodeCoordinates(string $type): array
     {
         $data = [];
@@ -200,6 +232,10 @@ class WktEncoder implements EncoderInterface, DecoderInterface
         return rtrim($wkt);
     }
 
+    /**
+     * Decodes a wkt point coordinates
+     * @return array
+     */
     private function decodePoint(): array
     {
         $this->match(WktLexer::T_OPEN_PARENTHESIS);
@@ -232,6 +268,10 @@ class WktEncoder implements EncoderInterface, DecoderInterface
         return rtrim($wkt, ',');
     }
 
+    /**
+     * Decodes a wkt linestring coordinates
+     * @return array
+     */
     private function decodeLineString(): array
     {
         $this->match(WktLexer::T_OPEN_PARENTHESIS);
