@@ -20,12 +20,11 @@ declare(strict_types=1);
 
 namespace Nasumilu\Spatial\Serializer\Encoder;
 
-use function \implode;
-use function \rtrim;
-use function \call_user_func;
-use function \in_array;
-use function \stripos;
-
+use function implode;
+use function rtrim;
+use function call_user_func;
+use function in_array;
+use function stripos;
 use Nasumilu\Spatial\Serializer\Encoder\Wkt\WktLexer;
 use Symfony\Component\Serializer\Encoder\{
     EncoderInterface,
@@ -38,16 +37,22 @@ use Symfony\Component\Serializer\Encoder\{
 class WktEncoder implements EncoderInterface, DecoderInterface
 {
 
-    private WktLexer $lexer;
+    /** @var WktLexer */
+    private $lexer;
 
     /** The Well-Known Text format extension */
     public const WKT_FORMAT = 'wkt';
+    /** The extended well-known text format extension */
     public const EWKT_FORMAT = 'ewkt';
+    /** Numerically indexed array of wkt formats */
     public const FORMATS = [
         self::WKT_FORMAT,
         self::EWKT_FORMAT
     ];
 
+    /**
+     * Default constructor.
+     */
     public function __construct()
     {
         $this->lexer = new WktLexer();
@@ -105,8 +110,8 @@ class WktEncoder implements EncoderInterface, DecoderInterface
             'type' => $type,
             'crs' => array_merge([
                 'srid' => $srid,
-            ], $dimension)
-            ],
+                    ], $dimension)
+                ],
                 $this->decodeCoordinates($type));
         $this->lexer->reset();
         return $data;
@@ -276,6 +281,37 @@ class WktEncoder implements EncoderInterface, DecoderInterface
     {
         $this->match(WktLexer::T_OPEN_PARENTHESIS);
         $coordinates = $this->decodeCoordinateSeq();
+        $this->match(WktLexer::T_CLOSE_PARENTHESIS);
+        return $coordinates;
+    }
+
+    /**
+     * Encodes a normalized polygon object's coordinates a a WKT string.
+     * @param array $coordiantes
+     * @return string
+     */
+    public function encodePolygon(array $coordiantes): string
+    {
+        $wkt = '';
+        foreach ($coordiantes as $linestring) {
+            $wkt .= '(' . $this->encodeLineString($linestring) . '),';
+        }
+        return rtrim($wkt, ',');
+    }
+
+    /**
+     * Decodes a wkt polygon coordinates
+     * @return array
+     */
+    private function decodePolygon(): array
+    {
+        $coordiantes = [];
+        $this->match(WktLexer::T_OPEN_PARENTHESIS);
+        $coordinates[] = $this->decodeLineString();
+        while ($this->lexer->isNextToken(WktLexer::T_COMMA)) {
+            $this->match(WktLexer::T_COMMA);
+            $coordinates[] = $this->decodeLineString();
+        }
         $this->match(WktLexer::T_CLOSE_PARENTHESIS);
         return $coordinates;
     }
