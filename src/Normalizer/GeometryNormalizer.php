@@ -30,7 +30,8 @@ use Symfony\Component\Serializer\Normalizer\{
 use Nasumilu\Spatial\Geometry\{
     Geometry,
     Point,
-    LineString
+    LineString,
+    Polygon
 };
 
 /**
@@ -79,7 +80,6 @@ class GeometryNormalizer implements NormalizerInterface, DenormalizerInterface
      */
     public function denormalize($data, string $type, string $format = null, array $context = []): Geometry
     {
-        print_r($data);
         if(null === $factory = $context['factory'] ?? null) {
             throw new \InvalidArgumentException("Must have a geomtry factory in context!");
         }
@@ -134,6 +134,20 @@ class GeometryNormalizer implements NormalizerInterface, DenormalizerInterface
         $coordinates = [];
         foreach ($linestring as $point) {
             $coordinates[] = $this->normalizePoint($point);
+        }
+        return $coordinates;
+    }
+    
+    /**
+     * Normalizes a Polygon objects coordinate values
+     * @param Polygon $polygon
+     * @return array
+     */
+    public function normalizePolygon(Polygon $polygon): array 
+    {
+        $coordinates = [];
+        foreach($polygon as $linestring) {
+            $coordinates[] = $this->normalizeLineString($linestring);
         }
         return $coordinates;
     }
