@@ -26,25 +26,39 @@ use function \is_numeric;
 use function \strtolower;
 
 /**
- * Description of WktLexer
+ * WktLexer provides lexical parsing ewkt and wkt geometry format.
  *
  * @author Michael Lucas <mlucas@nasumilu.net>
  */
 class WktLexer extends AbstractLexer
 {
 
+    /** None or Unknown type */
     public const T_NONE = 1;
+    /** Numeric type (float or integer)*/
     public const T_NUMERIC = 2;
+    /** Closed parenthesis type */
     public const T_CLOSE_PARENTHESIS = 6;
+    /** Open parenthesis type */
     public const T_OPEN_PARENTHESIS = 7;
+    /** Comma type */
     public const T_COMMA = 8;
+    /** Equals type */
     public const T_EQUALS = 11;
+    /** Semicolon type */
     public const T_SEMICOLON = 50;
+    /** "SRID" character set type */
     public const T_SRID = 501;
+    /** "EMPTY" character set type */
     public const T_EMPTY = 500;
+    /** "Z", "M", or "ZM" character set type */
     public const T_DIMENSION = 502;
+    /** Wkt geometry type character set type (point, linestring ... geometrycollection) */
     public const T_GEOMETRY_TYPE = 600;
 
+    /**
+     * {@inheritDoc}
+     */
     protected function getType(&$value)
     {
         if (is_numeric($value)) {
@@ -82,6 +96,9 @@ class WktLexer extends AbstractLexer
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected function getCatchablePatterns()
     {
         return [
@@ -94,7 +111,7 @@ class WktLexer extends AbstractLexer
     }
 
     /**
-     * @return string[]
+     * {@inheritDoc}
      */
     protected function getNonCatchablePatterns()
     {

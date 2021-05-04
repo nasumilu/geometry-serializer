@@ -316,6 +316,14 @@ class WktEncoder implements EncoderInterface, DecoderInterface
         return $coordinates;
     }
 
+    /**
+     * Matches a token and move to the next
+     * 
+     * @todo Needs better error reporting when a match fails; The current exception
+     * argument is ambiguous.
+     * @param int $token
+     * @throws \Exception
+     */
     private function match($token)
     {
         $lookaheadType = $this->lexer->lookahead['type'];
