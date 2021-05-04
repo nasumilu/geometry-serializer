@@ -4,7 +4,16 @@
     "type": "library",
     "homepage": "https://nasumilu.net",
     "license": "Apache-2.0",
-    "keywords": [],
+    "keywords": [
+        "gis",
+        "wkt",
+        "ewkt",
+        "geometry",
+        "serializer",
+        "well-known text",
+        "well-known binary",
+        "spatial"
+    ],
     "authors": [
         {
             "name": "Michael Lucas",
