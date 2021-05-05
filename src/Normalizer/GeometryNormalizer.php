@@ -20,7 +20,6 @@ declare(strict_types=1);
 
 namespace Nasumilu\Spatial\Serializer\Normalizer;
 
-
 use function \is_subclass_of;
 use function \array_merge;
 use Symfony\Component\Serializer\Normalizer\{
@@ -31,7 +30,8 @@ use Nasumilu\Spatial\Geometry\{
     Geometry,
     Point,
     LineString,
-    Polygon
+    Polygon,
+    MultiPoint
 };
 
 /**
@@ -80,7 +80,7 @@ class GeometryNormalizer implements NormalizerInterface, DenormalizerInterface
      */
     public function denormalize($data, string $type, string $format = null, array $context = []): Geometry
     {
-        if(null === $factory = $context['factory'] ?? null) {
+        if (null === $factory = $context['factory'] ?? null) {
             throw new \InvalidArgumentException("Must have a geomtry factory in context!");
         }
         return $factory->create($data);
@@ -91,7 +91,7 @@ class GeometryNormalizer implements NormalizerInterface, DenormalizerInterface
      */
     public function supportsDenormalization($data, string $type, string $format = null): bool
     {
-        return $type === Geometry::class || is_subclass_of($type,Geometry::class, true);
+        return $type === Geometry::class || is_subclass_of($type, Geometry::class, true);
     }
 
     /**
@@ -137,17 +137,31 @@ class GeometryNormalizer implements NormalizerInterface, DenormalizerInterface
         }
         return $coordinates;
     }
-    
+
     /**
      * Normalizes a Polygon objects coordinate values
      * @param Polygon $polygon
      * @return array
      */
-    public function normalizePolygon(Polygon $polygon): array 
+    public function normalizePolygon(Polygon $polygon): array
     {
         $coordinates = [];
-        foreach($polygon as $linestring) {
+        foreach ($polygon as $linestring) {
             $coordinates[] = $this->normalizeLineString($linestring);
+        }
+        return $coordinates;
+    }
+
+    /**
+     * Normalizes a MultiPoint objects coordinate values
+     * @param MultiPoint $polygon
+     * @return array
+     */
+    public function normalizeMultiPoint(MultiPoint $multipoint): array
+    {
+        $coordinates = [];
+        foreach ($multipoint as $point) {
+            $coordinates[] = $this->normalizePoint($point);
         }
         return $coordinates;
     }

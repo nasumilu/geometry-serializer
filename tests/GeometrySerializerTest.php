@@ -32,7 +32,8 @@ use Nasumilu\Spatial\Geometry\{
     AbstractGeometryFactory,
     Point,
     LineString,
-    Polygon
+    Polygon,
+    MultiPoint
 };
 
 /**
@@ -70,7 +71,7 @@ class GeometrySerializerTest extends TestCase
         $resource = __DIR__ . '/../vendor/nasumilu/geometry/tests/Resources/php/';
         $wktResource = __DIR__ . '/Resources/';
         $data = [];
-        foreach ([Point::WKT_TYPE, LineString::WKT_TYPE, Polygon::WKT_TYPE] as $type) {
+        foreach ([Point::WKT_TYPE, LineString::WKT_TYPE, Polygon::WKT_TYPE, MultiPoint::WKT_TYPE] as $type) {
             foreach (WktEncoder::FORMATS as $format) {
                 $data["$type-$format"] = [
                     require $resource . "$type.php",

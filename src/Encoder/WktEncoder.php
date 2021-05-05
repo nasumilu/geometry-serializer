@@ -42,8 +42,10 @@ class WktEncoder implements EncoderInterface, DecoderInterface
 
     /** The Well-Known Text format extension */
     public const WKT_FORMAT = 'wkt';
+
     /** The extended well-known text format extension */
     public const EWKT_FORMAT = 'ewkt';
+
     /** Numerically indexed array of wkt formats */
     public const FORMATS = [
         self::WKT_FORMAT,
@@ -314,6 +316,33 @@ class WktEncoder implements EncoderInterface, DecoderInterface
         }
         $this->match(WktLexer::T_CLOSE_PARENTHESIS);
         return $coordinates;
+    }
+
+    /**
+     * Decodes a wkt multipoint coordinates
+     * @return array
+     */
+    private function decodeMultiPoint(): array
+    {
+
+        $this->match(WktLexer::T_OPEN_PARENTHESIS);
+        $coordinates = $this->decodeCoordinateSeq();
+        $this->match(WktLexer::T_CLOSE_PARENTHESIS);
+        return $coordinates;
+    }
+
+    /**
+     * Encodes a normalized multipoint objects coordinates as a WKT string
+     * @param array $coordinates
+     * @return string
+     */
+    public function encodeMultiPoint(array $coordinates): string
+    {
+        $wkt = '';
+        foreach ($coordinates as $coordinate) {
+            $wkt .= $this->encodePoint($coordinate) . ',';
+        }
+        return rtrim($wkt, ',');
     }
 
     /**
