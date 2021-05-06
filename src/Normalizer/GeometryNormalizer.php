@@ -31,7 +31,8 @@ use Nasumilu\Spatial\Geometry\{
     Point,
     LineString,
     Polygon,
-    MultiPoint
+    MultiPoint,
+    MultiLineString
 };
 
 /**
@@ -162,6 +163,20 @@ class GeometryNormalizer implements NormalizerInterface, DenormalizerInterface
         $coordinates = [];
         foreach ($multipoint as $point) {
             $coordinates[] = $this->normalizePoint($point);
+        }
+        return $coordinates;
+    }
+
+    /**
+     * Normalizes a MultiLineString objects coordinate values
+     * @param MultiLineString $polygon
+     * @return array
+     */
+    public function normalizeMultiLineString(MultiLineString $multilinestring): array
+    {
+        $coordinates = [];
+        foreach ($multilinestring as $linestring) {
+            $coordinates[] = $this->normalizeLineString($linestring);
         }
         return $coordinates;
     }

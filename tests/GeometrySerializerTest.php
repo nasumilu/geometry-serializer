@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace Nasumilu\Spatial\Serializer\Tests;
 
+use InvalidArgumentException;
 use function \file_get_contents;
 use Symfony\Component\Serializer\Serializer;
 use PHPUnit\Framework\TestCase;
@@ -33,7 +34,8 @@ use Nasumilu\Spatial\Geometry\{
     Point,
     LineString,
     Polygon,
-    MultiPoint
+    MultiPoint,
+    MultiLineString
 };
 
 /**
@@ -64,6 +66,8 @@ class GeometrySerializerTest extends TestCase
         $this->assertEquals($serializer, $wkt);
         $deserialize = self::$serializer->deserialize($serializer, Geometry::class, $format, ['factory' => $factory]);
         $this->assertEquals($geometry, $deserialize);
+        $this->expectException(InvalidArgumentException::class);
+        self::$serializer->deserialize($serializer, Geometry::class, $format);
     }
 
     public function wktDataProvider()
@@ -71,7 +75,11 @@ class GeometrySerializerTest extends TestCase
         $resource = __DIR__ . '/../vendor/nasumilu/geometry/tests/Resources/php/';
         $wktResource = __DIR__ . '/Resources/';
         $data = [];
-        foreach ([Point::WKT_TYPE, LineString::WKT_TYPE, Polygon::WKT_TYPE, MultiPoint::WKT_TYPE] as $type) {
+        foreach ([Point::WKT_TYPE,
+            LineString::WKT_TYPE, 
+            Polygon::WKT_TYPE, 
+            MultiPoint::WKT_TYPE,
+            MultiLineString::WKT_TYPE] as $type) {
             foreach (WktEncoder::FORMATS as $format) {
                 $data["$type-$format"] = [
                     require $resource . "$type.php",

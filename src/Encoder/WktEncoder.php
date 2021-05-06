@@ -346,6 +346,37 @@ class WktEncoder implements EncoderInterface, DecoderInterface
     }
 
     /**
+     * Decodes a wkt multilinestring coordinates
+     * @return array
+     */
+    private function decodeMultiLineString(): array
+    {
+        $coordiantes = [];
+        $this->match(WktLexer::T_OPEN_PARENTHESIS);
+        $coordinates[] = $this->decodeLineString();
+        while ($this->lexer->isNextToken(WktLexer::T_COMMA)) {
+            $this->match(WktLexer::T_COMMA);
+            $coordinates[] = $this->decodeLineString();
+        }
+        $this->match(WktLexer::T_CLOSE_PARENTHESIS);
+        return $coordinates;
+    }
+
+    /**
+     * Encodes a normalized multilinestring objects coordinates as a WKT string
+     * @param array $coordinates
+     * @return string
+     */
+    public function encodeMultiLineString(array $coordinates): string
+    {
+        $wkt = '';
+        foreach ($coordinates as $coordinate) {
+            $wkt .= '(' . $this->encodeLineString($coordinate) . '),';
+        }
+        return rtrim($wkt, ',');
+    }
+
+    /**
      * Matches a token and move to the next
      * 
      * @todo Needs better error reporting when a match fails; The current exception
