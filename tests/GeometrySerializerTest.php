@@ -35,7 +35,8 @@ use Nasumilu\Spatial\Geometry\{
     LineString,
     Polygon,
     MultiPoint,
-    MultiLineString
+    MultiLineString,
+    MultiPolygon
 };
 
 /**
@@ -70,16 +71,37 @@ class GeometrySerializerTest extends TestCase
         self::$serializer->deserialize($serializer, Geometry::class, $format);
     }
 
+    /**
+     * @testWith ["point", "POINT EMPTY", {"srid":4326}]
+     *           ["linestring", "LINESTRING EMPTY", {"srid":4326}]
+     *           ["polygon", "POLYGON EMPTY", {"srid":4326}]
+     *           ["multipoint", "MULTIPOINT EMPTY", {"srid":4326}]
+     *           ["multilinestring", "MULTILINESTRING EMPTY", {"srid":4326}]
+     *           ["multipolygon", "MULTIPOLYGON EMPTY", {"srid":4326}]
+     */
+    public function testSerializeEmptyGeometryToWkt(string $type, string $wkt, array $options)
+    {
+        $factory = $this->getMockForAbstractClass(AbstractGeometryFactory::class, [$options]);
+        $geometry = $factory->create(['type' => $type]);
+        $this->assertTrue($geometry->isEmpty());
+        $serializer = self::$serializer->serialize($geometry, 'wkt');
+        $this->assertEquals($serializer, $wkt);
+        $deserialize = self::$serializer->deserialize($serializer, Geometry::class, 'wkt', ['factory' => $factory]);
+
+        $this->assertTrue($deserialize->isEmpty());
+    }
+
     public function wktDataProvider()
     {
         $resource = __DIR__ . '/../vendor/nasumilu/geometry/tests/Resources/php/';
         $wktResource = __DIR__ . '/Resources/';
         $data = [];
         foreach ([Point::WKT_TYPE,
-            LineString::WKT_TYPE, 
-            Polygon::WKT_TYPE, 
-            MultiPoint::WKT_TYPE,
-            MultiLineString::WKT_TYPE] as $type) {
+    LineString::WKT_TYPE,
+    Polygon::WKT_TYPE,
+    MultiPoint::WKT_TYPE,
+    MultiLineString::WKT_TYPE,
+    MultiPolygon::WKT_TYPE] as $type) {
             foreach (WktEncoder::FORMATS as $format) {
                 $data["$type-$format"] = [
                     require $resource . "$type.php",

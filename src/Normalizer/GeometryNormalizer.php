@@ -32,7 +32,8 @@ use Nasumilu\Spatial\Geometry\{
     LineString,
     Polygon,
     MultiPoint,
-    MultiLineString
+    MultiLineString,
+    MultiPolygon
 };
 
 /**
@@ -103,6 +104,10 @@ class GeometryNormalizer implements NormalizerInterface, DenormalizerInterface
      */
     public function normalizeCoordinates(Geometry $geometry): array
     {
+        if($geometry->isEmpty()) {
+            return [];
+        }
+        
         return [
             'coordinates' => call_user_func([$this, 'normalize' . $geometry->getGeometryType()], $geometry)
         ];
@@ -177,6 +182,20 @@ class GeometryNormalizer implements NormalizerInterface, DenormalizerInterface
         $coordinates = [];
         foreach ($multilinestring as $linestring) {
             $coordinates[] = $this->normalizeLineString($linestring);
+        }
+        return $coordinates;
+    }
+    
+    /**
+     * Normalizes a MultiPolygon objects coordinate values
+     * @param MultiPolygon $multipolygon
+     * @return array
+     */
+    public function normalizeMultiPolygon(MultiPolygon $multipolygon): array
+    {
+        $coordinates = [];
+        foreach($multipolygon as $polygon) {
+            $coordinates[] = $this->normalizePolygon($polygon);
         }
         return $coordinates;
     }

@@ -73,7 +73,8 @@ class WktEncoder implements EncoderInterface, DecoderInterface
      */
     public function encode($data, string $format, array $context = array()): string
     {
-        $wkt = sprintf('%s (%s)', $this->encodeType($data), $this->encodeGeometry($data));
+
+        $wkt = sprintf('%s %s', $this->encodeType($data), $this->encodeGeometry($data));
         if ($format === self::EWKT_FORMAT && $data['crs']['srid'] !== -1) {
             $wkt = "SRID={$data['crs']['srid']};$wkt";
         }
@@ -219,7 +220,13 @@ class WktEncoder implements EncoderInterface, DecoderInterface
      */
     public function encodeGeometry(array $value): string
     {
-        return call_user_func([$this, 'encode' . $value['type']], $value['coordinates']);
+
+        $count = count(($value['coordinates'] ?? $value['geometries'] ?? []));
+        if(0 === $count) {
+            return 'EMPTY';
+        }
+
+        return '(' . call_user_func([$this, 'encode' . $value['type']], $value['coordinates']) . ')';
     }
 
     /**
@@ -372,6 +379,37 @@ class WktEncoder implements EncoderInterface, DecoderInterface
         $wkt = '';
         foreach ($coordinates as $coordinate) {
             $wkt .= '(' . $this->encodeLineString($coordinate) . '),';
+        }
+        return rtrim($wkt, ',');
+    }
+
+    /**
+     * Decodes a wkt multilinestring coordinates
+     * @return array
+     */
+    private function decodeMultiPolygon(): array
+    {
+        $coordiantes = [];
+        $this->match(WktLexer::T_OPEN_PARENTHESIS);
+        $coordinates[] = $this->decodePolygon();
+        while ($this->lexer->isNextToken(WktLexer::T_COMMA)) {
+            $this->match(WktLexer::T_COMMA);
+            $coordinates[] = $this->decodePolygon();
+        }
+        $this->match(WktLexer::T_CLOSE_PARENTHESIS);
+        return $coordinates;
+    }
+
+    /**
+     * Encodes a normalized multipolygon objects coordinates as a WKT string
+     * @param array $coordinates
+     * @return string
+     */
+    public function encodeMultiPolygon(array $coordinates): string
+    {
+        $wkt = '';
+        foreach ($coordinates as $coordinate) {
+            $wkt .= '(' . $this->encodePolygon($coordinate) . '),';
         }
         return rtrim($wkt, ',');
     }
